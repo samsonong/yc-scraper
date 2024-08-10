@@ -6,6 +6,12 @@
   "author": "Samson Ong <contact@samsonong.com>",
   "license": "BSD-3-Clause",
   "private": false,
+  "scripts": {
+    "main": "ts-node src/index.ts",
+    "clean": "yarn run lint && yarn run prettier",
+    "lint": "eslint .",
+    "prettier": "prettier . --write"
+  },
   "dependencies": {
     "puppeteer": "^23.0.2"
   },
