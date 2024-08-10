@@ -10,6 +10,7 @@
     "puppeteer": "^23.0.2"
   },
   "devDependencies": {
+    "prettier": "^3.3.3",
     "typescript": "^5.5.4"
   }
 }
