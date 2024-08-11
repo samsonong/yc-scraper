@@ -1,5 +1,6 @@
 import fs from "fs";
 import puppeteer from "puppeteer";
+import { writeToFile } from "./services/fs/writeToFile";
 import {
   getListOfYcCompanies,
   GetListOfYcCompaniesType,
@@ -15,7 +16,7 @@ import { getYcBatches } from "./services/getYcBatches";
   let allCompanies: GetListOfYcCompaniesType[] = [];
   if (!fs.existsSync(ycCompaniesOutputFilePath)) {
     console.info(
-      `\`${ycCompaniesOutputFilePath}\` does not exist. Fetching fresh data...`,
+      `\`${ycCompaniesOutputFilePath}\` does not exist. Fetching fresh data...`
     );
 
     // * Fetch batch numbers
@@ -27,24 +28,14 @@ import { getYcBatches } from "./services/getYcBatches";
     }
 
     // * Write result to file (for reusing)
-    fs.writeFile(
-      ycCompaniesOutputFilePath,
-      JSON.stringify(allCompanies),
-      (err) => {
-        if (err) {
-          throw new Error(`Error writing file: ${err}`);
-        } else {
-          console.log("List of YC companies available in `yc-companies.json`");
-        }
-      },
-    );
+    writeToFile({ filePath: ycCompaniesOutputFilePath, data: allCompanies });
   }
   if (allCompanies.length === 0) {
     console.info(
-      `\`${ycCompaniesOutputFilePath}\` found! Using previously-fetched data...`,
+      `\`${ycCompaniesOutputFilePath}\` found! Using previously-fetched data...`
     );
     allCompanies = JSON.parse(
-      fs.readFileSync(ycCompaniesOutputFilePath, "utf8"),
+      fs.readFileSync(ycCompaniesOutputFilePath, "utf8")
     );
   }
 
