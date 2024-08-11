@@ -62,5 +62,8 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
   // * Remember to close page!
   await page.close();
 
+  console.info(
+    `${batchNumbers.length} batches found (${batchNumbers[0]} ~ ${batchNumbers[batchNumbers.length - 1]})`
+  );
   return batchNumbers;
 }
