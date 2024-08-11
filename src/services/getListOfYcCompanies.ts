@@ -1,4 +1,5 @@
 import { Browser } from "puppeteer";
+import { YC_BASE_URL } from "../constants/constants";
 import { scrollUntilPageEnd } from "./puppeteer/scrollUntilPageEnd";
 
 type Props = {
@@ -22,7 +23,7 @@ export async function getListOfYcCompanies({
   batchNumber,
 }: Props): Promise<GetListOfYcCompaniesType> {
   // * Navigate to https://www.ycombinator.com/companies?batch=X00
-  const url = `https://www.ycombinator.com/companies?batch=${batchNumber}`;
+  const url = new URL(`companies?batch=${batchNumber}`, YC_BASE_URL).toString();
   console.info(`Navigating to \`${url}\`...`);
   const page = await browser.newPage();
   await page.goto(url);
@@ -52,7 +53,7 @@ export async function getListOfYcCompanies({
         throw new Error("Could not find `<div>` containing list of companies");
       }
       return output;
-    },
+    }
   );
 
   // * Grab list of companies
@@ -65,7 +66,7 @@ export async function getListOfYcCompanies({
       if (!relativeYcProfileUrl) return [];
       const ycProfileUrl = new URL(
         relativeYcProfileUrl,
-        "https://www.ycombinator.com",
+        "https://www.ycombinator.com"
       ).toString();
 
       // * This is the `<div class="lg:max-w-[90%]">` containing the company info

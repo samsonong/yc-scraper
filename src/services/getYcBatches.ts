@@ -6,9 +6,10 @@ type Props = {
 
 export async function getYcBatches({ browser }: Props): Promise<string[]> {
   // * Navigate to https://www.ycombinator.com/companies
-  console.info("Navigating to `https://www.ycombinator.com/companies`...");
+  const url = new URL("companies", "https://www.ycombinator.com").toString();
+  console.info(`Navigating to \`${url}\`...`);
   const page = await browser.newPage();
-  await page.goto("https://www.ycombinator.com/companies");
+  await page.goto(url);
 
   // * Wait for page to finish loading
   await page.waitForNetworkIdle();
@@ -18,7 +19,7 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
   const allH4ElementsHandle = await page.$$("h4");
   if (allH4ElementsHandle.length < 1) throw new Error("`<h4>` not found");
   const matchingH4Handle = allH4ElementsHandle.find((el) =>
-    el.evaluate((el) => el.textContent?.toLowerCase().includes("batch")),
+    el.evaluate((el) => el.textContent?.toLowerCase().includes("batch"))
   );
   if (!matchingH4Handle) throw new Error("`<h4>Batch</h4>` not found");
 
@@ -46,7 +47,7 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
       const siblingDivs = batchSection.querySelectorAll("div");
       if (!siblingDivs) throw new Error("`<h4>Batch</h4>` has no siblings");
       return siblingDivs;
-    },
+    }
   );
 
   // * Extracting batch numbers
@@ -54,8 +55,8 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
   const batchNumbers: string[] = await siblingDivsHandle.evaluate(
     (siblingDivs) =>
       Array.from(siblingDivs).flatMap(
-        (div) => div.querySelector("span")?.textContent ?? [],
-      ),
+        (div) => div.querySelector("span")?.textContent ?? []
+      )
   );
 
   // * Remember to close page!
