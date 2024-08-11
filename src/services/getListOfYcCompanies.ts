@@ -52,7 +52,7 @@ export async function getListOfYcCompanies({
         throw new Error("Could not find `<div>` containing list of companies");
       }
       return output;
-    }
+    },
   );
 
   // * Grab list of companies
@@ -65,7 +65,7 @@ export async function getListOfYcCompanies({
       if (!relativeYcProfileUrl) return [];
       const ycProfileUrl = new URL(
         relativeYcProfileUrl,
-        "https://www.ycombinator.com"
+        "https://www.ycombinator.com",
       ).toString();
 
       // * This is the `<div class="lg:max-w-[90%]">` containing the company info
