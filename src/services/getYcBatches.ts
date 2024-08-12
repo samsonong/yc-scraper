@@ -1,6 +1,7 @@
 import { Browser } from "puppeteer";
 import { consoleLog } from "./terminal/consoleLog";
 import { chalk } from "./chalk/chalk";
+import { YC_BASE_URL } from "../constants/constants";
 
 type Props = {
   browser: Browser;
@@ -8,7 +9,7 @@ type Props = {
 
 export async function getYcBatches({ browser }: Props): Promise<string[]> {
   // * Navigate to https://www.ycombinator.com/companies
-  const url = new URL("companies", "https://www.ycombinator.com").toString();
+  const url = new URL("companies", YC_BASE_URL).toString();
   consoleLog(`Navigating to ${chalk(url, "link")}...`);
   const page = await browser.newPage();
   await page.goto(url);
