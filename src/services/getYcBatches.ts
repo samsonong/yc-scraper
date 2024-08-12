@@ -1,4 +1,4 @@
-import { Browser } from "puppeteer";
+import { Browser, ElementHandle } from "puppeteer";
 import { consoleLog } from "./terminal/consoleLog";
 import { chalk } from "./chalk/chalk";
 import { YC_BASE_URL } from "../constants/constants";
@@ -21,9 +21,16 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
   consoleLog("Looking for `<h4>Batch</h4>`...", "info", "dim");
   const allH4ElementsHandle = await page.$$("h4");
   if (allH4ElementsHandle.length < 1) throw new Error("`<h4>` not found");
-  const matchingH4Handle = allH4ElementsHandle.find((el) =>
-    el.evaluate((el) => el.textContent?.toLowerCase().includes("batch"))
-  );
+
+  let matchingH4Handle: ElementHandle<HTMLHeadingElement> | null = null;
+  for (let i = 0; i < allH4ElementsHandle.length; i++) {
+    const h4 = allH4ElementsHandle[i];
+    const innerText = await h4.evaluate((el) => el.textContent?.toLowerCase());
+    if (innerText?.includes("batch")) {
+      matchingH4Handle = h4;
+      break;
+    }
+  }
   if (!matchingH4Handle) throw new Error("`<h4>Batch</h4>` not found");
 
   // * Go through all `<div>` siblings of `<h4>Batch</h4>` and collect batch numbers
