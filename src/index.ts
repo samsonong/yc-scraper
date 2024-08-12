@@ -8,6 +8,9 @@ import {
 import { getYcBatches } from "./services/getYcBatches";
 import { consoleLog } from "./services/terminal/consoleLog";
 
+import { getFoundersOfYcCompany } from "./services/getFoundersOfYcCompany";
+import { chalk } from "./services/chalk/chalk";
+
 (async () => {
   const browser = await puppeteer.launch();
 
@@ -42,8 +45,28 @@ import { consoleLog } from "./services/terminal/consoleLog";
         fs.readFileSync(ycCompaniesOutputFilePath, "utf8")
       );
     }
+
+    const smallBatch = allCompanies.slice(0, 2);
+
+    // * Fetch founders for each company
+    for (const batch of smallBatch) {
+      for (const company of batch.companies) {
+        // * Fetch founders
+        consoleLog(
+          `Fetching ${chalk(`${company.name}'s`, "info")} active founders (${chalk(company.ycProfileUrl, "link")})...`,
+          "info"
+        );
+        const founders = await getFoundersOfYcCompany({
+          browser,
+          url: company.ycProfileUrl,
+        });
+
+        // * Add founders to company object
+        console.log(JSON.stringify(founders, undefined, 2));
+      }
+    }
   } catch (err: unknown) {
-    consoleLog(JSON.stringify(err), "error");
+    consoleLog(`Error: ${JSON.stringify(err, undefined, 2)}`, "error");
   } finally {
     await browser.close();
   }
