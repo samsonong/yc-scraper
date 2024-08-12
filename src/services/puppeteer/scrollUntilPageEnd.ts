@@ -1,11 +1,12 @@
 import { Page } from "puppeteer";
+import { consoleLog } from "../terminal/consoleLog";
 
 type Props = {
   page: Page;
 };
 
 export async function scrollUntilPageEnd({ page }: Props) {
-  console.info(`Scrolling till the end of the page...`);
+  consoleLog(`Scrolling till the end of the page...`, "info", "dim");
   let prevScrollHeight = 0;
   let newScrollHeight = 0;
   do {

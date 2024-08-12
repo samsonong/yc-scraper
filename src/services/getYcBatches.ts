@@ -1,4 +1,6 @@
 import { Browser } from "puppeteer";
+import { consoleLog } from "./terminal/consoleLog";
+import { chalk } from "./chalk/chalk";
 
 type Props = {
   browser: Browser;
@@ -7,7 +9,7 @@ type Props = {
 export async function getYcBatches({ browser }: Props): Promise<string[]> {
   // * Navigate to https://www.ycombinator.com/companies
   const url = new URL("companies", "https://www.ycombinator.com").toString();
-  console.info(`Navigating to \`${url}\`...`);
+  consoleLog(`Navigating to ${chalk(url, "link")}...`);
   const page = await browser.newPage();
   await page.goto(url);
 
@@ -15,7 +17,7 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
   await page.waitForNetworkIdle();
 
   // * Look for `<h4>Batch</h4>`
-  console.info("Looking for `<h4>Batch</h4>`...");
+  consoleLog("Looking for `<h4>Batch</h4>`...", "info", "dim");
   const allH4ElementsHandle = await page.$$("h4");
   if (allH4ElementsHandle.length < 1) throw new Error("`<h4>` not found");
   const matchingH4Handle = allH4ElementsHandle.find((el) =>
@@ -24,7 +26,11 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
   if (!matchingH4Handle) throw new Error("`<h4>Batch</h4>` not found");
 
   // * Go through all `<div>` siblings of `<h4>Batch</h4>` and collect batch numbers
-  console.info("Found `<h4>Batch</h4>`! Getting sibling `<div>`...");
+  consoleLog(
+    "Found `<h4>Batch</h4>`! Getting sibling `<div>`...",
+    "info",
+    "dim"
+  );
   const batchSectionHandle = await matchingH4Handle.evaluateHandle((h4) => {
     const parent = h4.parentElement as HTMLDivElement;
     if (!parent) throw new Error("`<h4>Batch</h4>` is an orphan");
@@ -32,7 +38,11 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
   });
 
   // * Press "<a>See all options</a>" to reveal all batches
-  console.info("Clicking `<a>See all options</a>` to reveal all batches...");
+  consoleLog(
+    "Clicking `<a>See all options</a>` to reveal all batches...",
+    "info",
+    "dim"
+  );
   const seeAllOptions = await batchSectionHandle.evaluateHandle((section) => {
     const seeAllOptions = section.querySelector("a");
     if (!seeAllOptions) throw new Error("`<a>See all options</a>` not found");
@@ -41,7 +51,7 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
   await seeAllOptions.click();
 
   // * Getting all sibling `<div>` elements
-  console.info("Getting all sibling `<div>` elements...");
+  consoleLog("Getting all sibling `<div>` elements...", "info", "dim");
   const siblingDivsHandle = await batchSectionHandle.evaluateHandle(
     (batchSection) => {
       const siblingDivs = batchSection.querySelectorAll("div");
@@ -51,7 +61,7 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
   );
 
   // * Extracting batch numbers
-  console.info("Extracting batch numbers...");
+  consoleLog("Extracting batch numbers...", "info", "dim");
   const batchNumbers: string[] = await siblingDivsHandle.evaluate(
     (siblingDivs) =>
       Array.from(siblingDivs).flatMap(
@@ -62,8 +72,9 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
   // * Remember to close page!
   await page.close();
 
-  console.info(
-    `${batchNumbers.length} batches found (${batchNumbers[0]} ~ ${batchNumbers[batchNumbers.length - 1]})`
+  consoleLog(
+    `${batchNumbers.length} batches found (${batchNumbers[0]} ~ ${batchNumbers[batchNumbers.length - 1]})\n`,
+    "success"
   );
   return batchNumbers;
 }

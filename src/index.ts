@@ -6,38 +6,45 @@ import {
   GetListOfYcCompaniesType,
 } from "./services/getListOfYcCompanies";
 import { getYcBatches } from "./services/getYcBatches";
+import { consoleLog } from "./services/terminal/consoleLog";
 
 (async () => {
   const browser = await puppeteer.launch();
 
-  // * If `output/yc-companies.json` does not exist, fetch data
-  // * Else, use existing data
-  const ycCompaniesOutputFilePath = "output/yc-companies.json";
-  let allCompanies: GetListOfYcCompaniesType[] = [];
-  if (!fs.existsSync(ycCompaniesOutputFilePath)) {
-    console.info(
-      `\`${ycCompaniesOutputFilePath}\` does not exist. Fetching fresh data...`
-    );
+  try {
+    // * If `output/yc-companies.json` does not exist, fetch data
+    // * Else, use existing data
+    const ycCompaniesOutputFilePath = "output/yc-companies.json";
+    let allCompanies: GetListOfYcCompaniesType[] = [];
+    if (!fs.existsSync(ycCompaniesOutputFilePath)) {
+      consoleLog(
+        `\`${ycCompaniesOutputFilePath}\` does not exist. Fetching fresh data...\n`,
+        "info"
+      );
 
-    // * Fetch batch numbers
-    const batchNumbers = await getYcBatches({ browser });
+      // * Fetch batch numbers
+      const batchNumbers = await getYcBatches({ browser });
 
-    // * Fetch companies for each batch
-    for (const batchNumber of batchNumbers) {
-      allCompanies.push(await getListOfYcCompanies({ browser, batchNumber }));
+      // * Fetch companies for each batch
+      for (const batchNumber of batchNumbers) {
+        allCompanies.push(await getListOfYcCompanies({ browser, batchNumber }));
+      }
+
+      // * Write result to file (for reusing)
+      writeToFile({ filePath: ycCompaniesOutputFilePath, data: allCompanies });
     }
-
-    // * Write result to file (for reusing)
-    writeToFile({ filePath: ycCompaniesOutputFilePath, data: allCompanies });
+    if (allCompanies.length === 0) {
+      consoleLog(
+        `\`${ycCompaniesOutputFilePath}\` found! Using previously-fetched data...\n`,
+        "info"
+      );
+      allCompanies = JSON.parse(
+        fs.readFileSync(ycCompaniesOutputFilePath, "utf8")
+      );
+    }
+  } catch (err: unknown) {
+    consoleLog(JSON.stringify(err), "error");
+  } finally {
+    await browser.close();
   }
-  if (allCompanies.length === 0) {
-    console.info(
-      `\`${ycCompaniesOutputFilePath}\` found! Using previously-fetched data...`
-    );
-    allCompanies = JSON.parse(
-      fs.readFileSync(ycCompaniesOutputFilePath, "utf8")
-    );
-  }
-
-  await browser.close();
 })();

@@ -1,4 +1,5 @@
 import fs from "fs";
+import { consoleLog } from "../terminal/consoleLog";
 import { removeUnusualLineTerminator } from "./removeUnusualLineTerminator";
 type Props = {
   filePath: string;
@@ -11,6 +12,11 @@ export function writeToFile({ filePath, data }: Props) {
     filePath = `output/${filePath}`;
   }
 
+  // * If `output` folder does not exist, create it
+  if (!fs.existsSync("output")) {
+    fs.mkdirSync("output");
+  }
+
   function replacer(key: string, value: unknown) {
     if (typeof value === "string") {
       return removeUnusualLineTerminator(value);
@@ -21,7 +27,10 @@ export function writeToFile({ filePath, data }: Props) {
     if (err) {
       throw new Error(`Error writing file: ${err}`);
     } else {
-      console.info("List of YC companies available in `yc-companies.json`");
+      consoleLog(
+        "List of YC companies available in `yc-companies.json`\n",
+        "success"
+      );
     }
   });
 }

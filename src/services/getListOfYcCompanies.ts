@@ -1,6 +1,8 @@
 import { Browser } from "puppeteer";
 import { YC_BASE_URL } from "../constants/constants";
 import { scrollUntilPageEnd } from "./puppeteer/scrollUntilPageEnd";
+import { consoleLog } from "./terminal/consoleLog";
+import { chalk } from "./chalk/chalk";
 
 type Props = {
   browser: Browser;
@@ -24,7 +26,7 @@ export async function getListOfYcCompanies({
 }: Props): Promise<GetListOfYcCompaniesType> {
   // * Navigate to https://www.ycombinator.com/companies?batch=X00
   const url = new URL(`companies?batch=${batchNumber}`, YC_BASE_URL).toString();
-  console.info(`Navigating to \`${url}\`...`);
+  consoleLog(`Navigating to ${chalk(url, "link")}...`);
   const page = await browser.newPage();
   await page.goto(url);
   page.on("console", (msg) => console.log("PAGE LOG:", msg.text()));
@@ -36,7 +38,11 @@ export async function getListOfYcCompanies({
   await scrollUntilPageEnd({ page });
 
   // * Look for `<div>Showing X of X companies</div>`
-  console.info("Looking for `<div>Showing X of X companies</div>`...");
+  consoleLog(
+    "Looking for `<div>Showing X of X companies</div>`...",
+    "info",
+    "dim"
+  );
   const siblingOfCompaniesListDiv = await page
     .locator("div ::-p-text(Showing )")
     .waitHandle();
@@ -45,7 +51,7 @@ export async function getListOfYcCompanies({
   }
 
   // * Grab `<div>` containing list of companies
-  console.info(`Grabbing <div> containing list of companies...`);
+  consoleLog(`Grabbing <div> containing list of companies...`, "info", "dim");
   const companiesListDiv = await siblingOfCompaniesListDiv.evaluateHandle(
     (sibling) => {
       const output = sibling.nextElementSibling;
@@ -57,7 +63,7 @@ export async function getListOfYcCompanies({
   );
 
   // * Grab list of companies
-  console.info(`Grabbing list of companies...`);
+  consoleLog(`Grabbing list of companies...`, "info", "dim");
   const companies = await companiesListDiv.evaluate((div) => {
     const listOfCompaniesA = div.querySelectorAll("a");
     return Array.from(listOfCompaniesA).flatMap((companyA) => {
@@ -99,7 +105,10 @@ export async function getListOfYcCompanies({
   // * Remember to close page!
   await page.close();
 
-  console.info(`Found ${companies.length} companies in batch ${batchNumber}`);
+  consoleLog(
+    `Found ${companies.length} companies in batch ${batchNumber}\n`,
+    "success"
+  );
   return {
     batchNumber,
     numberOfCompanies: companies.length,
