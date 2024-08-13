@@ -1,12 +1,14 @@
 import fs from "fs";
 import { consoleLog } from "../terminal/consoleLog";
 import { removeUnusualLineTerminator } from "./removeUnusualLineTerminator";
+import { chalk } from "../chalk/chalk";
 type Props = {
+  prettyName: string;
   filePath: string;
   data: unknown;
 };
 
-export function writeToFile({ filePath, data }: Props) {
+export function writeToFile({ prettyName, filePath, data }: Props) {
   // * If filePath does not start with `output/`, prepend it
   if (!filePath.startsWith("output/")) {
     filePath = `output/${filePath}`;
@@ -28,7 +30,7 @@ export function writeToFile({ filePath, data }: Props) {
       throw new Error(`Error writing file: ${err}`);
     } else {
       consoleLog(
-        "List of YC companies available in `yc-companies.json`\n",
+        `List of ${prettyName} available in ${chalk(filePath, "link")}\n`,
         "success",
       );
     }

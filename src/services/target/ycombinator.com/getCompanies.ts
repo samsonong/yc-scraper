@@ -46,6 +46,7 @@ export async function getCompanies({
 
     // * Write result to file (for reusing)
     writeToFile({
+      prettyName: "YC companies",
       filePath: ycCompaniesOutputFilePath,
       data: ycBatchesOfCompanies,
     });
