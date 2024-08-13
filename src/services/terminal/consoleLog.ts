@@ -1,11 +1,3 @@
-/**
- * - debug = white
- * - info = blue
- * - success = green
- * - warn = yellow
- * - error = red
- */
-
 import { chalk, ConsoleLevels } from "../chalk/chalk";
 
 export function consoleLog(message: string, type?: ConsoleLevels, dim?: "dim") {
@@ -18,7 +10,7 @@ export function consoleLog(message: string, type?: ConsoleLevels, dim?: "dim") {
       return;
     case "info":
     case "success":
-      consoleLog(chalk(message, type, dim === "dim"));
+      console.info(chalk(message, type, dim === "dim"));
       return;
     case "warn":
       console.warn(chalk(message, type, dim === "dim"));
