@@ -2,14 +2,14 @@ import fs from "fs";
 import puppeteer from "puppeteer";
 import { writeToFile } from "./services/fs/writeToFile";
 import {
-  getFoundersOfYcCompany,
-  GetFoundersOfYcCompanyType,
-} from "./services/getFoundersOfYcCompany";
+  getFoundersOfCompany,
+  GetFoundersOfCompanyType,
+} from "./services/target/ycombinator.com/getFoundersOfCompany";
 import {
-  getListOfYcCompanies,
-  GetListOfYcCompaniesType,
-} from "./services/getListOfYcCompanies";
-import { getYcBatches } from "./services/getYcBatches";
+  getCompaniesOfBatch,
+  GetCompaniesOfBatchType,
+} from "./services/target/ycombinator.com/getCompaniesOfBatch";
+import { getBatches } from "./services/target/ycombinator.com/getBatches";
 import { consoleLog } from "./services/terminal/consoleLog";
 import { retryWrapper } from "./services/terminal/retryWrapper";
 
@@ -22,7 +22,7 @@ const ycFoundersOutputFilePath = "output/yc-founders.json";
   try {
     // * If `output/yc-companies.json` does not exist, fetch data
     // * Else, use existing data
-    let ycBatchesOfCompanies: GetListOfYcCompaniesType[] = [];
+    let ycBatchesOfCompanies: GetCompaniesOfBatchType[] = [];
     if (!fs.existsSync(ycCompaniesOutputFilePath)) {
       consoleLog(
         `\`${ycCompaniesOutputFilePath}\` does not exist. Fetching fresh data...\n`,
@@ -30,12 +30,12 @@ const ycFoundersOutputFilePath = "output/yc-founders.json";
       );
 
       // * Fetch batch numbers
-      const batchNumbers = await getYcBatches({ browser });
+      const batchNumbers = await getBatches({ browser });
 
       // * Fetch companies for each batch
       for (const batchNumber of batchNumbers) {
         ycBatchesOfCompanies.push(
-          await getListOfYcCompanies({ browser, batchNumber }),
+          await getCompaniesOfBatch({ browser, batchNumber }),
         );
       }
 
@@ -57,7 +57,7 @@ const ycFoundersOutputFilePath = "output/yc-founders.json";
 
     // * Fetch founders for each company
     const concurrency = 20;
-    const allFounders: GetFoundersOfYcCompanyType[] = [];
+    const allFounders: GetFoundersOfCompanyType[] = [];
     for (let i = 0; i < ycBatchesOfCompanies.length; i++) {
       const thisBatch = ycBatchesOfCompanies[i].companies;
       consoleLog(
@@ -69,7 +69,7 @@ const ycFoundersOutputFilePath = "output/yc-founders.json";
         const foundersFromCompaniesToProcess = await Promise.allSettled(
           companiesToProcess.map(async (company) =>
             retryWrapper(async () =>
-              getFoundersOfYcCompany({
+              getFoundersOfCompany({
                 browser,
                 name: company.name,
                 url: company.ycProfileUrl,

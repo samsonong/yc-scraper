@@ -1,8 +1,8 @@
 import { Browser, ElementHandle, Page } from "puppeteer";
-import { YC_BASE_URL } from "../constants/constants";
-import { chalk } from "./chalk/chalk";
-import { consoleLog } from "./terminal/consoleLog";
-import { filterResourceLoading } from "./puppeteer/filterResourceLoading";
+import { YC_BASE_URL } from "../../../constants/constants";
+import { chalk } from "../../chalk/chalk";
+import { consoleLog } from "../../terminal/consoleLog";
+import { filterResourceLoading } from "../../puppeteer/filterResourceLoading";
 
 type Props = {
   browser: Browser;
@@ -11,7 +11,7 @@ type Props = {
   url: string;
 };
 
-export type GetFoundersOfYcCompanyType = {
+export type GetFoundersOfCompanyType = {
   name: string;
   numberOfFounders: number;
   founders: FounderProfile[];
@@ -28,12 +28,12 @@ type FounderProfileSocial = {
   github?: string;
 };
 
-export async function getFoundersOfYcCompany({
+export async function getFoundersOfCompany({
   browser,
   page,
   name,
   url,
-}: Props): Promise<GetFoundersOfYcCompanyType> {
+}: Props): Promise<GetFoundersOfCompanyType> {
   if (!page) page = await browser.newPage();
   await page.setRequestInterception(true);
   filterResourceLoading({ page, rule: { schema: "aesthetics" } });

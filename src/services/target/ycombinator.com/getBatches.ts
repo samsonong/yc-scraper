@@ -1,13 +1,13 @@
 import { Browser, ElementHandle } from "puppeteer";
-import { consoleLog } from "./terminal/consoleLog";
-import { chalk } from "./chalk/chalk";
-import { YC_BASE_URL } from "../constants/constants";
+import { consoleLog } from "../../terminal/consoleLog";
+import { chalk } from "../../chalk/chalk";
+import { YC_BASE_URL } from "../../../constants/constants";
 
 type Props = {
   browser: Browser;
 };
 
-export async function getYcBatches({ browser }: Props): Promise<string[]> {
+export async function getBatches({ browser }: Props): Promise<string[]> {
   const page = await browser.newPage();
 
   try {

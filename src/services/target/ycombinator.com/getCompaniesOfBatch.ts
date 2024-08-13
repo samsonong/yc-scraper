@@ -1,15 +1,15 @@
 import { Browser } from "puppeteer";
-import { YC_BASE_URL } from "../constants/constants";
-import { scrollUntilPageEnd } from "./puppeteer/scrollUntilPageEnd";
-import { consoleLog } from "./terminal/consoleLog";
-import { chalk } from "./chalk/chalk";
+import { YC_BASE_URL } from "../../../constants/constants";
+import { scrollUntilPageEnd } from "../../puppeteer/scrollUntilPageEnd";
+import { consoleLog } from "../../terminal/consoleLog";
+import { chalk } from "../../chalk/chalk";
 
 type Props = {
   browser: Browser;
   batchNumber: string;
 };
 
-export type GetListOfYcCompaniesType = {
+export type GetCompaniesOfBatchType = {
   batchNumber: string;
   numberOfCompanies: number;
   companies: {
@@ -20,10 +20,10 @@ export type GetListOfYcCompaniesType = {
   }[];
 };
 
-export async function getListOfYcCompanies({
+export async function getCompaniesOfBatch({
   browser,
   batchNumber,
-}: Props): Promise<GetListOfYcCompaniesType> {
+}: Props): Promise<GetCompaniesOfBatchType> {
   const page = await browser.newPage();
 
   try {
