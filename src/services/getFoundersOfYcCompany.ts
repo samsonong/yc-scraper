@@ -2,6 +2,7 @@ import { Browser, ElementHandle, Page } from "puppeteer";
 import { YC_BASE_URL } from "../constants/constants";
 import { chalk } from "./chalk/chalk";
 import { consoleLog } from "./terminal/consoleLog";
+import { filterResourceLoading } from "./puppeteer/filterResourceLoading";
 
 type Props = {
   browser: Browser;
@@ -34,6 +35,8 @@ export async function getFoundersOfYcCompany({
   url,
 }: Props): Promise<GetFoundersOfYcCompanyType> {
   if (!page) page = await browser.newPage();
+  await page.setRequestInterception(true);
+  filterResourceLoading({ page, rule: { schema: "aesthetics" } });
 
   try {
     // * If url doesn't start with `YC_BASE_URL`, prepend it
@@ -60,7 +63,7 @@ export async function getFoundersOfYcCompany({
 
     consoleLog(
       `Found ${founders.length} active founders leading ${name}\n`,
-      "success"
+      "success",
     );
 
     return {
@@ -96,7 +99,7 @@ async function methodOne(page: Page): Promise<FounderProfile[] | null> {
     for (let i = 0; i < allH3ElementsHandle.length; i++) {
       const h3 = allH3ElementsHandle[i];
       const innerText = await h3.evaluate((el) =>
-        el.textContent?.toLowerCase()
+        el.textContent?.toLowerCase(),
       );
       if (
         innerText?.includes("active founders") ||
@@ -122,7 +125,7 @@ async function methodOne(page: Page): Promise<FounderProfile[] | null> {
             throw new Error();
           }
           return output;
-        }
+        },
       );
     } catch {
       throw new Error(error);
@@ -206,7 +209,7 @@ async function methodTwo(page: Page): Promise<FounderProfile[] | null> {
     consoleLog(
       "Cross-checking if this page is in the correct format...",
       "info",
-      "dim"
+      "dim",
     );
     let foundersHeaderDivText: string;
     try {
@@ -223,7 +226,7 @@ async function methodTwo(page: Page): Promise<FounderProfile[] | null> {
     }
     if (!foundersHeaderDivText.includes("founders")) {
       throw new Error(
-        '`<div class="ycdc-card">` does not have `<div>Founders</div>` as sibling'
+        '`<div class="ycdc-card">` does not have `<div>Founders</div>` as sibling',
       );
     }
 
