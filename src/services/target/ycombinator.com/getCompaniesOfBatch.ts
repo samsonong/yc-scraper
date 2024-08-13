@@ -1,30 +1,22 @@
 import { Browser } from "puppeteer";
 import { YC_BASE_URL } from "../../../constants/constants";
+import { chalk } from "../../chalk/chalk";
+import { filterResourceLoading } from "../../puppeteer/filterResourceLoading";
 import { scrollUntilPageEnd } from "../../puppeteer/scrollUntilPageEnd";
 import { consoleLog } from "../../terminal/consoleLog";
-import { chalk } from "../../chalk/chalk";
+import { GetCompaniesType } from "./getCompanies";
 
 type Props = {
   browser: Browser;
   batchNumber: string;
 };
 
-export type GetCompaniesOfBatchType = {
-  batchNumber: string;
-  numberOfCompanies: number;
-  companies: {
-    name: string;
-    description: string;
-    location: string;
-    ycProfileUrl: string;
-  }[];
-};
-
 export async function getCompaniesOfBatch({
   browser,
   batchNumber,
-}: Props): Promise<GetCompaniesOfBatchType> {
+}: Props): Promise<GetCompaniesType> {
   const page = await browser.newPage();
+  filterResourceLoading({ page, rule: { schema: "media" } });
 
   try {
     // * Navigate to https://www.ycombinator.com/companies?batch=X00
@@ -34,7 +26,6 @@ export async function getCompaniesOfBatch({
     ).toString();
     consoleLog(`Navigating to ${chalk(url, "link")}...`);
     await page.goto(url);
-    page.on("console", (msg) => console.log("PAGE LOG:", msg.text()));
 
     // * Wait for page to finish loading
     await page.waitForNetworkIdle();
