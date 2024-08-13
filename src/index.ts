@@ -26,12 +26,14 @@ const ycFoundersOutputFilePath = "output/yc-founders.json";
     const allFounders: GetFoundersOfCompanyType[] = [];
     for (let i = 0; i < ycBatchesOfCompanies.length; i++) {
       const thisBatch = ycBatchesOfCompanies[i].companies;
-      consoleLog(
-        `Processing batch ${ycBatchesOfCompanies[0].batchNumber}...\n`,
-        "info",
-      );
+
       for (let j = 0; j < thisBatch.length; j += concurrency) {
         const companiesToProcess = thisBatch.slice(j, j + concurrency);
+        consoleLog(
+          `Processing batch ${ycBatchesOfCompanies[i].batchNumber} (${companiesToProcess.length}/${thisBatch.length})...`,
+          "info",
+        );
+
         const foundersFromCompaniesToProcess = await Promise.allSettled(
           companiesToProcess.map(async (company) =>
             retryWrapper(async () =>
@@ -39,6 +41,7 @@ const ycFoundersOutputFilePath = "output/yc-founders.json";
                 browser,
                 name: company.name,
                 url: company.ycProfileUrl,
+                silent: true,
               }),
             ),
           ),
@@ -58,7 +61,11 @@ const ycFoundersOutputFilePath = "output/yc-founders.json";
     }
 
     // * Write result to file
-    writeToFile({ filePath: ycFoundersOutputFilePath, data: allFounders });
+    writeToFile({
+      prettyName: "YC founders",
+      filePath: ycFoundersOutputFilePath,
+      data: allFounders,
+    });
   } catch (err: unknown) {
     consoleLog(`Error: ${JSON.stringify(err, undefined, 2)}`, "error");
   } finally {
