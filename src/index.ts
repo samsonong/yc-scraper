@@ -8,10 +8,11 @@ import {
   getFoundersOfCompany,
   GetFoundersOfCompanyType,
 } from "./services/target/ycombinator.com/getFoundersOfCompany";
+import { parseFounders } from "./services/target/ycombinator.com/parseFounders";
 import { consoleLog } from "./services/terminal/consoleLog";
 import { retryWrapper } from "./services/terminal/retryWrapper";
 
-const ycFoundersOutputFilePath = "output/yc-founders.json";
+export const ycFoundersOutputFilePath = "output/yc-founders.json";
 
 (async () => {
   const browser = await puppeteer.launch({ headless: "shell" });
@@ -31,7 +32,7 @@ const ycFoundersOutputFilePath = "output/yc-founders.json";
         const companiesToProcess = thisBatch.slice(j, j + concurrency);
         consoleLog(
           `Processing batch ${ycBatchesOfCompanies[i].batchNumber} (${companiesToProcess.length}/${thisBatch.length})...`,
-          "info",
+          "info"
         );
 
         const foundersFromCompaniesToProcess = await Promise.allSettled(
@@ -42,9 +43,9 @@ const ycFoundersOutputFilePath = "output/yc-founders.json";
                 name: company.name,
                 url: company.ycProfileUrl,
                 silent: true,
-              }),
-            ),
-          ),
+              })
+            )
+          )
         );
         for (const result of foundersFromCompaniesToProcess) {
           if (result.status === "fulfilled") {
@@ -53,7 +54,7 @@ const ycFoundersOutputFilePath = "output/yc-founders.json";
             consoleLog(
               `Error: ${JSON.stringify(result.reason, undefined, 2)}`,
               "warn",
-              "dim",
+              "dim"
             );
           }
         }
@@ -71,4 +72,6 @@ const ycFoundersOutputFilePath = "output/yc-founders.json";
   } finally {
     await browser.close();
   }
+
+  parseFounders();
 })();

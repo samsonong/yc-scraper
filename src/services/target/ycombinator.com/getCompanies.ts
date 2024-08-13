@@ -20,7 +20,7 @@ export type GetCompaniesType = {
   }[];
 };
 
-const ycCompaniesOutputFilePath = "output/yc-companies.json";
+export const ycCompaniesOutputFilePath = "output/yc-companies.json";
 
 export async function getCompanies({
   browser,
