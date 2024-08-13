@@ -28,7 +28,7 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
     for (let i = 0; i < allH4ElementsHandle.length; i++) {
       const h4 = allH4ElementsHandle[i];
       const innerText = await h4.evaluate((el) =>
-        el.textContent?.toLowerCase()
+        el.textContent?.toLowerCase(),
       );
       if (innerText?.includes("batch")) {
         matchingH4Handle = h4;
@@ -41,7 +41,7 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
     consoleLog(
       "Found `<h4>Batch</h4>`! Getting sibling `<div>`...",
       "info",
-      "dim"
+      "dim",
     );
     const batchSectionHandle = await matchingH4Handle.evaluateHandle((h4) => {
       const parent = h4.parentElement as HTMLDivElement;
@@ -53,7 +53,7 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
     consoleLog(
       "Clicking `<a>See all options</a>` to reveal all batches...",
       "info",
-      "dim"
+      "dim",
     );
     const seeAllOptions = await batchSectionHandle.evaluateHandle((section) => {
       const seeAllOptions = section.querySelector("a");
@@ -69,7 +69,7 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
         const siblingDivs = batchSection.querySelectorAll("div");
         if (!siblingDivs) throw new Error("`<h4>Batch</h4>` has no siblings");
         return siblingDivs;
-      }
+      },
     );
 
     // * Extracting batch numbers
@@ -77,13 +77,13 @@ export async function getYcBatches({ browser }: Props): Promise<string[]> {
     const batchNumbers: string[] = await siblingDivsHandle.evaluate(
       (siblingDivs) =>
         Array.from(siblingDivs).flatMap(
-          (div) => div.querySelector("span")?.textContent ?? []
-        )
+          (div) => div.querySelector("span")?.textContent ?? [],
+        ),
     );
 
     consoleLog(
       `${batchNumbers.length} batches found (${batchNumbers[0]} ~ ${batchNumbers[batchNumbers.length - 1]})\n`,
-      "success"
+      "success",
     );
     return batchNumbers;
   } finally {

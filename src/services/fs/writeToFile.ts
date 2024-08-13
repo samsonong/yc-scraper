@@ -29,7 +29,7 @@ export function writeToFile({ filePath, data }: Props) {
     } else {
       consoleLog(
         "List of YC companies available in `yc-companies.json`\n",
-        "success"
+        "success",
       );
     }
   });

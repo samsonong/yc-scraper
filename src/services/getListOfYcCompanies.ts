@@ -30,7 +30,7 @@ export async function getListOfYcCompanies({
     // * Navigate to https://www.ycombinator.com/companies?batch=X00
     const url = new URL(
       `companies?batch=${batchNumber}`,
-      YC_BASE_URL
+      YC_BASE_URL,
     ).toString();
     consoleLog(`Navigating to ${chalk(url, "link")}...`);
     await page.goto(url);
@@ -46,7 +46,7 @@ export async function getListOfYcCompanies({
     consoleLog(
       "Looking for `<div>Showing X of X companies</div>`...",
       "info",
-      "dim"
+      "dim",
     );
     const siblingOfCompaniesListDiv = await page
       .locator("div ::-p-text(Showing )")
@@ -62,11 +62,11 @@ export async function getListOfYcCompanies({
         const output = sibling.nextElementSibling;
         if (!output) {
           throw new Error(
-            "Could not find `<div>` containing list of companies"
+            "Could not find `<div>` containing list of companies",
           );
         }
         return output;
-      }
+      },
     );
 
     // * Grab list of companies
@@ -79,7 +79,7 @@ export async function getListOfYcCompanies({
         if (!relativeYcProfileUrl) return [];
         const ycProfileUrl = new URL(
           relativeYcProfileUrl,
-          "https://www.ycombinator.com"
+          "https://www.ycombinator.com",
         ).toString();
 
         // * This is the `<div class="lg:max-w-[90%]">` containing the company info
@@ -113,7 +113,7 @@ export async function getListOfYcCompanies({
 
     consoleLog(
       `Found ${companies.length} companies in batch ${batchNumber}\n`,
-      "success"
+      "success",
     );
 
     return {

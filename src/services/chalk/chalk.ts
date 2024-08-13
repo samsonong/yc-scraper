@@ -6,7 +6,7 @@ export type ConsoleLevels = "error" | "warn" | "debug" | "info" | "success";
 export function chalk(
   string: string,
   type: Types | ConsoleLevels,
-  dim?: boolean
+  dim?: boolean,
 ) {
   let formatter: Chalk;
 
