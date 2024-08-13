@@ -9,6 +9,7 @@ type Props = {
   page?: Page;
   name: string;
   url: string;
+  silent?: true;
 };
 
 export type GetFoundersOfCompanyType = {
@@ -33,6 +34,7 @@ export async function getFoundersOfCompany({
   page,
   name,
   url,
+  silent,
 }: Props): Promise<GetFoundersOfCompanyType> {
   if (!page) page = await browser.newPage();
   filterResourceLoading({ page, rule: { schema: "aesthetics" } });
@@ -43,7 +45,7 @@ export async function getFoundersOfCompany({
       url = new URL(url, YC_BASE_URL).toString();
 
     // * Navigate to https://www.ycombinator.com/companies/{slug}
-    consoleLog(`Navigating to ${chalk(url, "link")}...`);
+    if (!silent) consoleLog(`Navigating to ${chalk(url, "link")}...`);
     await page.goto(url);
 
     // * This page doesn't lazy-load, so we don't need to wait for network idle
@@ -51,8 +53,8 @@ export async function getFoundersOfCompany({
 
     let founders: FounderProfile[] | null = null;
     try {
-      if (!founders) founders = await methodOne(page);
-      if (!founders) founders = await methodTwo(page);
+      if (!founders) founders = await methodOne(page, silent);
+      if (!founders) founders = await methodTwo(page, silent);
       if (!founders) {
         throw new Error(`Couldn't find founder info in ${chalk(url, "link")}`);
       }
@@ -60,10 +62,12 @@ export async function getFoundersOfCompany({
       throw new Error(err as string);
     }
 
-    consoleLog(
-      `Found ${founders.length} active founders leading ${name}\n`,
-      "success",
-    );
+    if (!silent) {
+      consoleLog(
+        `Found ${founders.length} active founders leading ${name}\n`,
+        "success",
+      );
+    }
 
     return {
       name,
@@ -86,12 +90,17 @@ export async function getFoundersOfCompany({
  *   </div>
  * </div>
  */
-async function methodOne(page: Page): Promise<FounderProfile[] | null> {
+async function methodOne(
+  page: Page,
+  silent?: true,
+): Promise<FounderProfile[] | null> {
   let error: string | undefined = undefined;
 
   try {
     // * Look for `<h3>Active Founders</h3>`
-    consoleLog("Looking for `<h3>Active Founders</h3>`...", "info", "dim");
+    if (!silent) {
+      consoleLog("Looking for `<h3>Active Founders</h3>`...", "info", "dim");
+    }
     const allH3ElementsHandle = await page.$$("h3");
     if (allH3ElementsHandle.length < 1) throw new Error("`<h3>` not found");
     let activeFounderH3Handle: ElementHandle<HTMLHeadingElement> | null = null;
@@ -113,7 +122,13 @@ async function methodOne(page: Page): Promise<FounderProfile[] | null> {
     }
 
     // * Grab `<div>` containing list of founders
-    consoleLog(`Grabbing <div> containing list of founders...`, "info", "dim");
+    if (!silent) {
+      consoleLog(
+        `Grabbing <div> containing list of founders...`,
+        "info",
+        "dim",
+      );
+    }
     let founderCardListHandle: ElementHandle<Element>;
     try {
       founderCardListHandle = await activeFounderH3Handle.evaluateHandle(
@@ -131,7 +146,7 @@ async function methodOne(page: Page): Promise<FounderProfile[] | null> {
     }
 
     // * Extract list of founders
-    consoleLog(`Extracting list of founders...`, "info", "dim");
+    if (!silent) consoleLog(`Extracting list of founders...`, "info", "dim");
     const founders = await founderCardListHandle.evaluate((div) => {
       const listOfFoundersDiv = div.querySelectorAll("div");
       return Array.from(listOfFoundersDiv).flatMap((div) => {
@@ -176,7 +191,7 @@ async function methodOne(page: Page): Promise<FounderProfile[] | null> {
 
     return founders;
   } catch (err: unknown) {
-    consoleLog(`Method 1 didn't work... ${err}`, "warn", "dim");
+    if (!silent) consoleLog(`Method 1 didn't work... ${err}`, "warn", "dim");
     return null;
   }
 }
@@ -194,22 +209,29 @@ async function methodOne(page: Page): Promise<FounderProfile[] | null> {
  *   </div>
  * </div>
  */
-async function methodTwo(page: Page): Promise<FounderProfile[] | null> {
+async function methodTwo(
+  page: Page,
+  silent?: true,
+): Promise<FounderProfile[] | null> {
   let error: string | undefined = undefined;
   try {
     // * Look for `<div class="ycdc-card">`
-    consoleLog('Looking for `<div class="ycdc-card">`...', "info", "dim");
+    if (!silent) {
+      consoleLog('Looking for `<div class="ycdc-card">`...', "info", "dim");
+    }
     const ycdcCardDivHandle = await page.locator(".ycdc-card").waitHandle();
     if (!ycdcCardDivHandle) {
       throw new Error('`<div class="ycdc-card">` not found');
     }
 
     // * Check if next sibling is `<div>Founders</div>`
-    consoleLog(
-      "Cross-checking if this page is in the correct format...",
-      "info",
-      "dim",
-    );
+    if (!silent) {
+      consoleLog(
+        "Cross-checking if this page is in the correct format...",
+        "info",
+        "dim",
+      );
+    }
     let foundersHeaderDivText: string;
     try {
       foundersHeaderDivText = await ycdcCardDivHandle.evaluate((div) => {
@@ -230,7 +252,7 @@ async function methodTwo(page: Page): Promise<FounderProfile[] | null> {
     }
 
     // * Get founder card list
-    consoleLog("Grabbing list of founder cards...", "info", "dim");
+    if (!silent) consoleLog("Grabbing list of founder cards...", "info", "dim");
     let founderCardListHandle;
     try {
       founderCardListHandle = await ycdcCardDivHandle.evaluateHandle((div) => {
@@ -247,7 +269,9 @@ async function methodTwo(page: Page): Promise<FounderProfile[] | null> {
     }
 
     // * Extract list of founders
-    consoleLog(`Extracting list of founders...`, "info", "dim");
+    if (!silent) {
+      consoleLog(`Extracting list of founders...`, "info", "dim");
+    }
     const founders = await founderCardListHandle.evaluate((div) => {
       const listOfFoundersDiv = div.querySelectorAll("div");
       return Array.from(listOfFoundersDiv).flatMap((div) => {
@@ -288,7 +312,7 @@ async function methodTwo(page: Page): Promise<FounderProfile[] | null> {
 
     return founders;
   } catch (err: unknown) {
-    consoleLog(`Method 2 didn't work... ${err}`, "warn", "dim");
+    if (!silent) consoleLog(`Method 2 didn't work... ${err}`, "warn", "dim");
     return null;
   }
 }
