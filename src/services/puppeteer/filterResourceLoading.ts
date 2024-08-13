@@ -3,7 +3,7 @@ import { HTTPRequest, Page, ResourceType } from "puppeteer";
 type Props = {
   page: Page;
   rule: {
-    schema?: "aesthetics";
+    schema?: "aesthetics" | "media";
     list?: ResourceType[];
   };
 };
@@ -11,16 +11,19 @@ type Props = {
 /**
  * Blocks resource loading based on a schema or list of resource types
  */
-export function filterResourceLoading({
+export async function filterResourceLoading({
   page,
   rule: { schema, list },
-}: Props): void {
+}: Props): Promise<void> {
   if (schema === "aesthetics") {
-    list = ["image", "font", "media", "stylesheet", "other"];
+    list = ["image", "font", "media", "stylesheet"];
+  } else if (schema === "media") {
+    list = ["image", "font", "media"];
   } else if (!list) {
     throw new Error("`filterResourceLoading()` requires a `list` or `schema`");
   }
 
+  await page.setRequestInterception(true);
   page.on("request", (request: HTTPRequest) => {
     if (list.includes(request.resourceType())) {
       request.abort();
