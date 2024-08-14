@@ -4,6 +4,7 @@ import { chalk } from "../../chalk/chalk";
 import { filterResourceLoading } from "../../puppeteer/filterResourceLoading";
 import { consoleLog } from "../../terminal/consoleLog";
 import { GetCompaniesType } from "./getCompanies";
+import { GetFoundersType } from "./getFounders";
 
 type Props = {
   browser: Browser;
@@ -13,37 +14,22 @@ type Props = {
   silent?: true;
 };
 
-export type GetFoundersOfCompanyType = {
-  batchNumber: string;
-  companyName: string;
-  profile: FounderProfile;
-}[];
-
-type FounderProfile = {
-  name: string;
-  social: FounderProfileSocial;
-};
-
-type FounderProfileSocial = {
-  twitter?: string;
-  linkedin?: string;
-  github?: string;
-};
-
 export async function getFoundersOfCompany({
   browser,
   page,
   batchNumber,
-  company: { name, ycProfileUrl: url },
+  company,
   silent,
-}: Props): Promise<GetFoundersOfCompanyType> {
+}: Props): Promise<GetFoundersType[]> {
   if (!page) page = await browser.newPage();
   filterResourceLoading({ page, rule: { schema: "aesthetics" } });
 
   try {
+    const { name, ycProfileUrl } = company;
     // * If url doesn't start with `YC_BASE_URL`, prepend it
-    if (!url.startsWith(YC_BASE_URL))
-      url = new URL(url, YC_BASE_URL).toString();
+    const url = ycProfileUrl.startsWith(YC_BASE_URL)
+      ? ycProfileUrl
+      : new URL(ycProfileUrl, YC_BASE_URL).toString();
 
     // * Navigate to https://www.ycombinator.com/companies/{slug}
     if (!silent) consoleLog(`Navigating to ${chalk(url, "link")}...`);
@@ -52,7 +38,7 @@ export async function getFoundersOfCompany({
     // * This page doesn't lazy-load, so we don't need to wait for network idle
     // await page.waitForNetworkIdle();
 
-    let founders: FounderProfile[] | null = null;
+    let founders: GetFoundersType["profile"][] | null = null;
     try {
       if (!founders) founders = await methodOne(page, silent);
       if (!founders) founders = await methodTwo(page, silent);
@@ -70,10 +56,10 @@ export async function getFoundersOfCompany({
       );
     }
 
-    return founders.map((founders) => ({
+    return founders.map((founder) => ({
       batchNumber: batchNumber,
-      companyName: name,
-      profile: founders,
+      company,
+      profile: founder,
     }));
   } finally {
     // * Remember to close page!
@@ -94,7 +80,7 @@ export async function getFoundersOfCompany({
 async function methodOne(
   page: Page,
   silent?: true,
-): Promise<FounderProfile[] | null> {
+): Promise<GetFoundersType["profile"][] | null> {
   let error: string | undefined = undefined;
 
   try {
@@ -167,7 +153,7 @@ async function methodOne(
         const socialLinks =
           founderCardContent.lastElementChild?.querySelectorAll("a");
 
-        const social: FounderProfileSocial = {};
+        const social: GetFoundersType["profile"]["social"] = {};
         socialLinks?.forEach((link) => {
           const href = link.getAttribute("href");
           if (!href) return;
@@ -213,7 +199,7 @@ async function methodOne(
 async function methodTwo(
   page: Page,
   silent?: true,
-): Promise<FounderProfile[] | null> {
+): Promise<GetFoundersType["profile"][] | null> {
   let error: string | undefined = undefined;
   try {
     // * Look for `<div class="ycdc-card">`
@@ -288,7 +274,7 @@ async function methodTwo(
         const socialLinks =
           founderCardContent.lastElementChild?.querySelectorAll("a");
 
-        const social: FounderProfileSocial = {};
+        const social: GetFoundersType["profile"]["social"] = {};
         socialLinks?.forEach((link) => {
           const href = link.getAttribute("href");
           if (!href) return;
