@@ -35,9 +35,9 @@ export function writeToFile({ prettyName, filePath, data, writeRaw }: Props) {
       } else {
         consoleLog(
           `List of ${prettyName} available in ${chalk(filePath, "link")}\n`,
-          "success"
+          "success",
         );
       }
-    }
+    },
   );
 }

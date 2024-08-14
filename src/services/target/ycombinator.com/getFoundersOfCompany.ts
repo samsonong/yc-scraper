@@ -3,20 +3,21 @@ import { YC_BASE_URL } from "../../../constants/constants";
 import { chalk } from "../../chalk/chalk";
 import { filterResourceLoading } from "../../puppeteer/filterResourceLoading";
 import { consoleLog } from "../../terminal/consoleLog";
+import { GetCompaniesType } from "./getCompanies";
 
 type Props = {
   browser: Browser;
   page?: Page;
-  name: string;
-  url: string;
+  batchNumber: string;
+  company: GetCompaniesType["companies"][number];
   silent?: true;
 };
 
 export type GetFoundersOfCompanyType = {
-  name: string;
-  numberOfFounders: number;
-  founders: FounderProfile[];
-};
+  batchNumber: string;
+  companyName: string;
+  profile: FounderProfile;
+}[];
 
 type FounderProfile = {
   name: string;
@@ -32,8 +33,8 @@ type FounderProfileSocial = {
 export async function getFoundersOfCompany({
   browser,
   page,
-  name,
-  url,
+  batchNumber,
+  company: { name, ycProfileUrl: url },
   silent,
 }: Props): Promise<GetFoundersOfCompanyType> {
   if (!page) page = await browser.newPage();
@@ -69,11 +70,11 @@ export async function getFoundersOfCompany({
       );
     }
 
-    return {
-      name,
-      numberOfFounders: founders.length,
-      founders,
-    };
+    return founders.map((founders) => ({
+      batchNumber: batchNumber,
+      companyName: name,
+      profile: founders,
+    }));
   } finally {
     // * Remember to close page!
     await page.close();

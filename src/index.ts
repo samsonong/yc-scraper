@@ -8,7 +8,6 @@ import {
   getFoundersOfCompany,
   GetFoundersOfCompanyType,
 } from "./services/target/ycombinator.com/getFoundersOfCompany";
-import { parseFounders } from "./services/target/ycombinator.com/parseFounders";
 import { consoleLog } from "./services/terminal/consoleLog";
 import { retryWrapper } from "./services/terminal/retryWrapper";
 
@@ -26,13 +25,13 @@ export const ycFoundersOutputFilePath = "output/yc-founders.json";
     const concurrency = 20;
     const allFounders: GetFoundersOfCompanyType[] = [];
     for (let i = 0; i < ycBatchesOfCompanies.length; i++) {
-      const thisBatch = ycBatchesOfCompanies[i].companies;
+      const companies = ycBatchesOfCompanies[i].companies;
 
-      for (let j = 0; j < thisBatch.length; j += concurrency) {
-        const companiesToProcess = thisBatch.slice(j, j + concurrency);
+      for (let j = 0; j < companies.length; j += concurrency) {
+        const companiesToProcess = companies.slice(j, j + concurrency);
         consoleLog(
-          `Processing batch ${ycBatchesOfCompanies[i].batchNumber} (${companiesToProcess.length}/${thisBatch.length})...`,
-          "info"
+          `Processing batch ${ycBatchesOfCompanies[i].batchNumber} (${companiesToProcess.length}/${companies.length})...`,
+          "info",
         );
 
         const foundersFromCompaniesToProcess = await Promise.allSettled(
@@ -40,12 +39,12 @@ export const ycFoundersOutputFilePath = "output/yc-founders.json";
             retryWrapper(async () =>
               getFoundersOfCompany({
                 browser,
-                name: company.name,
-                url: company.ycProfileUrl,
+                batchNumber: ycBatchesOfCompanies[i].batchNumber,
+                company,
                 silent: true,
-              })
-            )
-          )
+              }),
+            ),
+          ),
         );
         for (const result of foundersFromCompaniesToProcess) {
           if (result.status === "fulfilled") {
@@ -54,7 +53,7 @@ export const ycFoundersOutputFilePath = "output/yc-founders.json";
             consoleLog(
               `Error: ${JSON.stringify(result.reason, undefined, 2)}`,
               "warn",
-              "dim"
+              "dim",
             );
           }
         }
@@ -72,6 +71,4 @@ export const ycFoundersOutputFilePath = "output/yc-founders.json";
   } finally {
     await browser.close();
   }
-
-  parseFounders();
 })();
