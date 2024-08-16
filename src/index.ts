@@ -1,4 +1,6 @@
+import { config } from "@dotenvx/dotenvx";
 import puppeteer from "puppeteer";
+import { enrichFounders } from "./services/target/apollo.io/enrichFounders";
 import {
   getCompanies,
   GetCompaniesType,
@@ -9,16 +11,18 @@ import {
 } from "./services/target/ycombinator.com/getFounders";
 import { consoleLog } from "./services/terminal/consoleLog";
 
+config();
+
 (async () => {
   const browser = await puppeteer.launch({ headless: "shell" });
 
+  let founders: GetFoundersType[] = [];
   try {
     const batchesOfCompanies: GetCompaniesType[] = await getCompanies({
       browser,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const founders: GetFoundersType[] = await getFounders({
+    founders = await getFounders({
       browser,
       batchesOfCompanies,
     });
@@ -27,4 +31,10 @@ import { consoleLog } from "./services/terminal/consoleLog";
   } finally {
     await browser.close();
   }
+
+  if (founders.length === 0) {
+    throw new Error("`founders` is unexpectedly empty");
+  }
+
+  await enrichFounders({ founders });
 })();
