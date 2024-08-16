@@ -34,11 +34,9 @@ export async function getCompaniesOfBatch({
     await scrollUntilPageEnd({ page });
 
     // * Look for `<div>Showing X of X companies</div>`
-    consoleLog(
-      "Looking for `<div>Showing X of X companies</div>`...",
-      "info",
-      "dim",
-    );
+    consoleLog("Looking for `<div>Showing X of X companies</div>`...", "info", {
+      dim: true,
+    });
     const siblingOfCompaniesListDiv = await page
       .locator("div ::-p-text(Showing )")
       .waitHandle();
@@ -47,7 +45,9 @@ export async function getCompaniesOfBatch({
     }
 
     // * Grab `<div>` containing list of companies
-    consoleLog(`Grabbing <div> containing list of companies...`, "info", "dim");
+    consoleLog(`Grabbing <div> containing list of companies...`, "info", {
+      dim: true,
+    });
     const companiesListDiv = await siblingOfCompaniesListDiv.evaluateHandle(
       (sibling) => {
         const output = sibling.nextElementSibling;
@@ -61,7 +61,7 @@ export async function getCompaniesOfBatch({
     );
 
     // * Grab list of companies
-    consoleLog(`Grabbing list of companies...`, "info", "dim");
+    consoleLog(`Grabbing list of companies...`, "info", { dim: true });
     const companies = await companiesListDiv.evaluate((div) => {
       const listOfCompaniesA = div.querySelectorAll("a");
       return Array.from(listOfCompaniesA).flatMap((companyA) => {

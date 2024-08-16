@@ -32,7 +32,7 @@ export async function getFoundersOfCompany({
       : new URL(ycProfileUrl, YC_BASE_URL).toString();
 
     // * Navigate to https://www.ycombinator.com/companies/{slug}
-    if (!silent) consoleLog(`Navigating to ${chalk(url, "link")}...`);
+    consoleLog(`Navigating to ${chalk(url, "link")}...`, undefined, { silent });
     await page.goto(url);
 
     // * This page doesn't lazy-load, so we don't need to wait for network idle
@@ -49,12 +49,11 @@ export async function getFoundersOfCompany({
       throw new Error(err as string);
     }
 
-    if (!silent) {
-      consoleLog(
-        `Found ${founders.length} active founders leading ${name}\n`,
-        "success",
-      );
-    }
+    consoleLog(
+      `Found ${founders.length} active founders leading ${name}\n`,
+      "success",
+      { silent },
+    );
 
     return founders.map((founder) => ({
       batchNumber: batchNumber,
@@ -85,9 +84,10 @@ async function methodOne(
 
   try {
     // * Look for `<h3>Active Founders</h3>`
-    if (!silent) {
-      consoleLog("Looking for `<h3>Active Founders</h3>`...", "info", "dim");
-    }
+    consoleLog("Looking for `<h3>Active Founders</h3>`...", "info", {
+      dim: true,
+      silent,
+    });
     const allH3ElementsHandle = await page.$$("h3");
     if (allH3ElementsHandle.length < 1) throw new Error("`<h3>` not found");
     let activeFounderH3Handle: ElementHandle<HTMLHeadingElement> | null = null;
@@ -109,13 +109,10 @@ async function methodOne(
     }
 
     // * Grab `<div>` containing list of founders
-    if (!silent) {
-      consoleLog(
-        `Grabbing <div> containing list of founders...`,
-        "info",
-        "dim",
-      );
-    }
+    consoleLog(`Grabbing <div> containing list of founders...`, "info", {
+      silent,
+    });
+
     let founderCardListHandle: ElementHandle<Element>;
     try {
       founderCardListHandle = await activeFounderH3Handle.evaluateHandle(
@@ -133,7 +130,7 @@ async function methodOne(
     }
 
     // * Extract list of founders
-    if (!silent) consoleLog(`Extracting list of founders...`, "info", "dim");
+    consoleLog(`Extracting list of founders...`, "info", { dim: true, silent });
     const founders = await founderCardListHandle.evaluate((div) => {
       const listOfFoundersDiv = div.querySelectorAll("div");
       return Array.from(listOfFoundersDiv).flatMap((div) => {
@@ -178,7 +175,7 @@ async function methodOne(
 
     return founders;
   } catch (err: unknown) {
-    if (!silent) consoleLog(`Method 1 didn't work... ${err}`, "warn", "dim");
+    consoleLog(`Method 1 didn't work... ${err}`, "warn", { dim: true, silent });
     return null;
   }
 }
@@ -203,22 +200,25 @@ async function methodTwo(
   let error: string | undefined = undefined;
   try {
     // * Look for `<div class="ycdc-card">`
-    if (!silent) {
-      consoleLog('Looking for `<div class="ycdc-card">`...', "info", "dim");
-    }
+
+    consoleLog('Looking for `<div class="ycdc-card">`...', "info", {
+      dim: true,
+      silent,
+    });
     const ycdcCardDivHandle = await page.locator(".ycdc-card").waitHandle();
     if (!ycdcCardDivHandle) {
       throw new Error('`<div class="ycdc-card">` not found');
     }
 
     // * Check if next sibling is `<div>Founders</div>`
-    if (!silent) {
-      consoleLog(
-        "Cross-checking if this page is in the correct format...",
-        "info",
-        "dim",
-      );
-    }
+    consoleLog(
+      "Cross-checking if this page is in the correct format...",
+      "info",
+      {
+        dim: true,
+        silent,
+      },
+    );
     let foundersHeaderDivText: string;
     try {
       foundersHeaderDivText = await ycdcCardDivHandle.evaluate((div) => {
@@ -239,7 +239,10 @@ async function methodTwo(
     }
 
     // * Get founder card list
-    if (!silent) consoleLog("Grabbing list of founder cards...", "info", "dim");
+    consoleLog("Grabbing list of founder cards...", "info", {
+      dim: true,
+      silent,
+    });
     let founderCardListHandle;
     try {
       founderCardListHandle = await ycdcCardDivHandle.evaluateHandle((div) => {
@@ -256,9 +259,7 @@ async function methodTwo(
     }
 
     // * Extract list of founders
-    if (!silent) {
-      consoleLog(`Extracting list of founders...`, "info", "dim");
-    }
+    consoleLog(`Extracting list of founders...`, "info", { dim: true, silent });
     const founders = await founderCardListHandle.evaluate((div) => {
       const listOfFoundersDiv = div.querySelectorAll("div");
       return Array.from(listOfFoundersDiv).flatMap((div) => {
@@ -299,7 +300,7 @@ async function methodTwo(
 
     return founders;
   } catch (err: unknown) {
-    if (!silent) consoleLog(`Method 2 didn't work... ${err}`, "warn", "dim");
+    consoleLog(`Method 2 didn't work... ${err}`, "warn", { dim: true, silent });
     return null;
   }
 }

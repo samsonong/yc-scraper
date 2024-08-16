@@ -40,7 +40,7 @@ export async function getFounders({
   if (!fs.existsSync(ycFoundersOutputFilePath)) {
     consoleLog(
       `\`${ycFoundersOutputFilePath}\` does not exist. Fetching fresh data...\n`,
-      "info"
+      "info",
     );
 
     // * Fetch allFounders for each company
@@ -56,7 +56,7 @@ export async function getFounders({
           `Processing batch ${
             batchesOfCompanies[i].batchNumber
           } (${progress}/${companies.length})...`,
-          "info"
+          "info",
         );
 
         const allFoundersFromCompaniesToProcess = await Promise.allSettled(
@@ -67,9 +67,9 @@ export async function getFounders({
                 batchNumber: batchesOfCompanies[i].batchNumber,
                 company,
                 silent: true,
-              })
-            )
-          )
+              }),
+            ),
+          ),
         );
         for (const result of allFoundersFromCompaniesToProcess) {
           if (result.status === "fulfilled") {
@@ -78,7 +78,7 @@ export async function getFounders({
             consoleLog(
               `Error: ${JSON.stringify(result.reason, undefined, 2)}`,
               "warn",
-              "dim"
+              { dim: true },
             );
           }
         }
@@ -95,7 +95,7 @@ export async function getFounders({
   if (allFounders.length === 0) {
     consoleLog(
       `\`${ycFoundersOutputFilePath}\` found! Using previously-fetched data...\n`,
-      "info"
+      "info",
     );
     allFounders = JSON.parse(fs.readFileSync(ycFoundersOutputFilePath, "utf8"));
   }

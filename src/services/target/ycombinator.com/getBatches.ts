@@ -20,7 +20,7 @@ export async function getBatches({ browser }: Props): Promise<string[]> {
     await page.waitForNetworkIdle();
 
     // * Look for `<h4>Batch</h4>`
-    consoleLog("Looking for `<h4>Batch</h4>`...", "info", "dim");
+    consoleLog("Looking for `<h4>Batch</h4>`...", "info", { dim: true });
     const allH4ElementsHandle = await page.$$("h4");
     if (allH4ElementsHandle.length < 1) throw new Error("`<h4>` not found");
 
@@ -38,11 +38,9 @@ export async function getBatches({ browser }: Props): Promise<string[]> {
     if (!matchingH4Handle) throw new Error("`<h4>Batch</h4>` not found");
 
     // * Go through all `<div>` siblings of `<h4>Batch</h4>` and collect batch numbers
-    consoleLog(
-      "Found `<h4>Batch</h4>`! Getting sibling `<div>`...",
-      "info",
-      "dim",
-    );
+    consoleLog("Found `<h4>Batch</h4>`! Getting sibling `<div>`...", "info", {
+      dim: true,
+    });
     const batchSectionHandle = await matchingH4Handle.evaluateHandle((h4) => {
       const parent = h4.parentElement as HTMLDivElement;
       if (!parent) throw new Error("`<h4>Batch</h4>` is an orphan");
@@ -53,7 +51,7 @@ export async function getBatches({ browser }: Props): Promise<string[]> {
     consoleLog(
       "Clicking `<a>See all options</a>` to reveal all batches...",
       "info",
-      "dim",
+      { dim: true },
     );
     const seeAllOptions = await batchSectionHandle.evaluateHandle((section) => {
       const seeAllOptions = section.querySelector("a");
@@ -63,7 +61,9 @@ export async function getBatches({ browser }: Props): Promise<string[]> {
     await seeAllOptions.click();
 
     // * Getting all sibling `<div>` elements
-    consoleLog("Getting all sibling `<div>` elements...", "info", "dim");
+    consoleLog("Getting all sibling `<div>` elements...", "info", {
+      dim: true,
+    });
     const siblingDivsHandle = await batchSectionHandle.evaluateHandle(
       (batchSection) => {
         const siblingDivs = batchSection.querySelectorAll("div");
@@ -73,7 +73,7 @@ export async function getBatches({ browser }: Props): Promise<string[]> {
     );
 
     // * Extracting batch numbers
-    consoleLog("Extracting batch numbers...", "info", "dim");
+    consoleLog("Extracting batch numbers...", "info", { dim: true });
     const batchNumbers: string[] = await siblingDivsHandle.evaluate(
       (siblingDivs) =>
         Array.from(siblingDivs).flatMap(

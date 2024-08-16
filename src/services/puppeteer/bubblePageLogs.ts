@@ -10,6 +10,6 @@ type Props = {
  */
 export function bubblePageLogs({ page }: Props): void {
   page.on("console", (msg: ConsoleMessage) => {
-    consoleLog(`PAGE LOG: "${msg.text()}"`, undefined, "dim");
+    consoleLog(`PAGE LOG: "${msg.text()}"`, undefined, { dim: true });
   });
 }

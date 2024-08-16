@@ -6,7 +6,7 @@ type Props = {
 };
 
 export async function scrollUntilPageEnd({ page }: Props) {
-  consoleLog(`Scrolling till the end of the page...`, "info", "dim");
+  consoleLog(`Scrolling till the end of the page...`, "info", { dim: true });
   let prevScrollHeight = 0;
   let newScrollHeight = 0;
   do {

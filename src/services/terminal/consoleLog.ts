@@ -1,8 +1,19 @@
 import { chalk, ConsoleLevels } from "../chalk/chalk";
 
-export function consoleLog(message: string, type?: ConsoleLevels, dim?: "dim") {
+type Config = {
+  dim?: boolean;
+  silent?: boolean;
+};
+
+export function consoleLog(
+  message: string,
+  type?: ConsoleLevels,
+  { dim, silent }: Config = {},
+): void {
+  if (silent) return;
+
   // * If `type` is not provided, don't chalk it
-  const output = type ? chalk(message, type, dim === "dim") : message;
+  const output = type ? chalk(message, type, dim) : message;
 
   switch (type) {
     case "debug":
