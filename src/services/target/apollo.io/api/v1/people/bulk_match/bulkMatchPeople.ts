@@ -37,11 +37,10 @@ export async function bulkMatchPeople(
   };
 
   const response: Response = await fetch(url, init);
-  console.log(JSON.stringify(response.headers, undefined, 2));
   const responseData = (await response.json()) as BulkMatchRawResponseDto;
   const daily_requests_left = Number.parseInt(
     // Not critical, so default to -1
-    response.headers.get("x-daily-requests-left") || "-1",
+    response.headers.get("x-24-hour-requests-left") || "-1",
   );
   const hourly_requests_left = Number.parseInt(
     // Not critical, so default to -1
