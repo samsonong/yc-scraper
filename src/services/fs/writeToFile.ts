@@ -7,9 +7,16 @@ type Props = {
   filePath: string;
   data: unknown;
   writeRaw?: true;
+  silent?: true;
 };
 
-export function writeToFile({ prettyName, filePath, data, writeRaw }: Props) {
+export function writeToFile({
+  prettyName,
+  filePath,
+  data,
+  writeRaw,
+  silent,
+}: Props) {
   // * If filePath does not start with `output/`, prepend it
   if (!filePath.startsWith("output/")) {
     filePath = `output/${filePath}`;
@@ -34,10 +41,11 @@ export function writeToFile({ prettyName, filePath, data, writeRaw }: Props) {
         throw new Error(`Error writing file: ${err}`);
       } else {
         consoleLog(
-          `List of ${prettyName} available in ${chalk(filePath, "link")}\n`,
+          `List of ${prettyName} available in ${chalk(filePath, "link")}`,
           "success",
+          { silent }
         );
       }
-    },
+    }
   );
 }
