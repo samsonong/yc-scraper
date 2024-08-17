@@ -30,7 +30,7 @@ export async function getCompanies({
   let ycBatchesOfCompanies: GetCompaniesType[] = [];
   if (!fs.existsSync(ycCompaniesOutputFilePath)) {
     consoleLog(
-      `\`${ycCompaniesOutputFilePath}\` does not exist. Fetching fresh data...\n`,
+      `\`${ycCompaniesOutputFilePath}\` does not exist. Fetching fresh data...`,
       "info",
     );
 
@@ -53,7 +53,7 @@ export async function getCompanies({
   }
   if (ycBatchesOfCompanies.length === 0) {
     consoleLog(
-      `\`${ycCompaniesOutputFilePath}\` found! Using previously-fetched data...\n`,
+      `\`${ycCompaniesOutputFilePath}\` found! Using previously-fetched data...`,
       "info",
     );
     ycBatchesOfCompanies = JSON.parse(

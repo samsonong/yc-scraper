@@ -82,7 +82,7 @@ export async function getBatches({ browser }: Props): Promise<string[]> {
     );
 
     consoleLog(
-      `${batchNumbers.length} batches found (${batchNumbers[0]} ~ ${batchNumbers[batchNumbers.length - 1]})\n`,
+      `${batchNumbers.length} batches found (${batchNumbers[0]} ~ ${batchNumbers[batchNumbers.length - 1]})`,
       "success",
     );
     return batchNumbers;

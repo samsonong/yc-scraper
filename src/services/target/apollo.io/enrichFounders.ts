@@ -26,17 +26,17 @@ export async function enrichFounders({ founders }: Props): Promise<void> {
   const numberOfFoundersToProcess = founders.length - enrichedFounders.length;
   if (numberOfFoundersToProcess === 0) {
     consoleLog(
-      `All founders have been enriched. Data available in \`${filePath}\`\n`,
-      "success"
+      `All founders have been enriched. Data available in \`${filePath}\``,
+      "success",
     );
     return;
   }
 
   consoleLog(
     enrichedFounders.length === 0
-      ? `\`${filePath}\` not found!\n`
-      : `\`${filePath}\` found with ${enrichedFounders.length} records!\n`,
-    "info"
+      ? `\`${filePath}\` not found!`
+      : `\`${filePath}\` found with ${enrichedFounders.length} records!`,
+    "info",
   );
 
   // * Enrich founders up to Apollo.io's hourly limit
@@ -52,22 +52,22 @@ export async function enrichFounders({ founders }: Props): Promise<void> {
   const rejectedFounders: GetFoundersType[] = [];
   if (fs.existsSync(rejectsFilePath)) {
     const data: GetFoundersType[] = JSON.parse(
-      fs.readFileSync(rejectsFilePath, "utf8")
+      fs.readFileSync(rejectsFilePath, "utf8"),
     );
     rejectedFounders.push(...data);
     if (rejectedFounders.length > 0) {
       nonRejectedFounders = nonRejectedFounders.filter(
         (founder) =>
           !rejectedFounders.some((rejectedFounder) =>
-            _.isEqual(founder, rejectedFounder)
-          )
+            _.isEqual(founder, rejectedFounder),
+          ),
       );
     }
   }
   if (nonRejectedFounders.length === 0) {
     consoleLog(
-      `All processable founders have been enriched. Rejected founders available in \`${rejectsFilePath}\`\n`,
-      "warn"
+      `All processable founders have been enriched. Rejected founders available in \`${rejectsFilePath}\``,
+      "warn",
     );
     return;
   }
@@ -82,7 +82,7 @@ export async function enrichFounders({ founders }: Props): Promise<void> {
     const thisFounder = nonRejectedFounders[i];
     if (
       !enrichedFounders.some((enrichedFounder) =>
-        isSimiliar(thisFounder, enrichedFounder)
+        isSimiliar(thisFounder, enrichedFounder),
       )
     ) {
       foundersToProcess.push(thisFounder);
@@ -91,7 +91,7 @@ export async function enrichFounders({ founders }: Props): Promise<void> {
   consoleLog(
     `Processing ${foundersToProcess.length} records this round...`,
     "info",
-    { dim: true }
+    { dim: true },
   );
 
   let dailyRequestLeft = dailyLimit;
@@ -153,40 +153,36 @@ export async function enrichFounders({ founders }: Props): Promise<void> {
 
   consoleLog(
     `Completed enrichment process. Data available in \`${filePath}\``,
-    "success"
+    "success",
   );
   consoleLog(
     `Number of founders enriched: ${newlyEnrichedFounders.length}`,
     "success",
-    { dim: true }
+    { dim: true },
   );
   consoleLog(
     `Total number of enriched founders: ${combinedEnrichedFounders.length}`,
     "info",
-    { dim: true }
+    { dim: true },
   );
   consoleLog(
     `Total number of rejected founders: ${rejectedFounders.length}`,
     "warn",
-    { dim: true }
+    { dim: true },
   );
   consoleLog(
     `Numbers of founders left to enrich: ${founders.length - combinedEnrichedFounders.length - rejectedFounders.length}`,
     "debug",
-    { dim: true }
+    { dim: true },
   );
-  consoleLog(
-    `[Apollo.io] Daily requests left: ${dailyRequestLeft}\n`,
-    "debug",
-    {
-      dim: true,
-    }
-  );
+  consoleLog(`[Apollo.io] Daily requests left: ${dailyRequestLeft}`, "debug", {
+    dim: true,
+  });
 }
 
 function isSimiliar(
   original: GetFoundersType,
-  enriched: EnrichedFounders["data"][number]
+  enriched: EnrichedFounders["data"][number],
 ): boolean {
   if (!enriched || !original) return false;
 

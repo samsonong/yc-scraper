@@ -50,7 +50,7 @@ export async function getFoundersOfCompany({
     }
 
     consoleLog(
-      `Found ${founders.length} active founders leading ${name}\n`,
+      `Found ${founders.length} active founders leading ${name}`,
       "success",
       { silent },
     );

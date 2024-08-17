@@ -39,7 +39,7 @@ export async function getFounders({
   let allFounders: GetFoundersType[] = [];
   if (!fs.existsSync(ycFoundersOutputFilePath)) {
     consoleLog(
-      `\`${ycFoundersOutputFilePath}\` does not exist. Fetching fresh data...\n`,
+      `\`${ycFoundersOutputFilePath}\` does not exist. Fetching fresh data...`,
       "info",
     );
 
@@ -94,7 +94,7 @@ export async function getFounders({
   }
   if (allFounders.length === 0) {
     consoleLog(
-      `\`${ycFoundersOutputFilePath}\` found! Using previously-fetched data...\n`,
+      `\`${ycFoundersOutputFilePath}\` found! Using previously-fetched data...`,
       "info",
     );
     allFounders = JSON.parse(fs.readFileSync(ycFoundersOutputFilePath, "utf8"));

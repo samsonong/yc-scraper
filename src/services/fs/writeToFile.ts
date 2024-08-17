@@ -43,9 +43,9 @@ export function writeToFile({
         consoleLog(
           `List of ${prettyName} available in ${chalk(filePath, "link")}`,
           "success",
-          { silent }
+          { silent },
         );
       }
-    }
+    },
   );
 }

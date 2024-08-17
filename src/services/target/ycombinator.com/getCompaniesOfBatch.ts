@@ -103,7 +103,7 @@ export async function getCompaniesOfBatch({
     });
 
     consoleLog(
-      `Found ${companies.length} companies in batch ${batchNumber}\n`,
+      `Found ${companies.length} companies in batch ${batchNumber}`,
       "success",
     );
 

@@ -70,7 +70,7 @@ export async function bulkMatchPeople(
     { dim: true, silent },
   );
   consoleLog(
-    `${daily_requests_left}/${hourly_requests_left}/${minute_requests_left} credits left this day/hour/minute\n`,
+    `${daily_requests_left}/${hourly_requests_left}/${minute_requests_left} credits left this day/hour/minute`,
     "info",
     { dim: true, silent },
   );
